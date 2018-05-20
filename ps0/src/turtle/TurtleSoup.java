@@ -3,6 +3,8 @@
  */
 package turtle;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class TurtleSoup {
@@ -49,7 +51,7 @@ public class TurtleSoup {
      * @return the integer number of sides
      */
     public static int calculatePolygonSidesFromAngle(double angle) {
-        assert 0.0 < angle && angle < 180.0 : "error: requires 0 < angle < 180";
+        assert 0.0 < angle && angle < 180.0 : "Error: requires 0 < angle < 180";
         double unroundedAnswer = 360 / (180 - angle);
         return (int) (Math.round(unroundedAnswer));
     }
@@ -93,7 +95,14 @@ public class TurtleSoup {
      */
     public static double calculateHeadingToPoint(double currentHeading, int currentX, int currentY,
                                                  int targetX, int targetY) {
-        throw new RuntimeException("implement me!");
+        if (!(0 <= currentHeading && currentHeading < 360)) {
+            throw new RuntimeException("Exception: currentHeading must be in range [0, 360)");
+        }
+        
+        int xDiff = targetX - currentX;
+        int yDiff = targetY - currentY;
+        double turnAngle = Math.toDegrees(Math.atan2(xDiff,  yDiff)) - currentHeading;
+        return turnAngle < 0 ? turnAngle + 360 : turnAngle;
     }
 
     /**
@@ -111,7 +120,30 @@ public class TurtleSoup {
      *         otherwise of size (# of points) - 1
      */
     public static List<Double> calculateHeadings(List<Integer> xCoords, List<Integer> yCoords) {
-        throw new RuntimeException("implement me!");
+        assert(xCoords.size() == yCoords.size());
+        int numPoints = xCoords.size();
+        List<Double> headingsList = new ArrayList<>();
+        double currentHeading = 0.0;
+        
+        for (int i = 0; i < numPoints - 1; i++) {
+            int currX = xCoords.get(i);
+            int currY = yCoords.get(i);
+            int targetX = xCoords.get(i + 1);
+            int targetY = yCoords.get(i + 1);
+            double turnAngle = calculateHeadingToPoint(currentHeading, currX, currY, 
+                             targetX, targetY);
+            headingsList.add(turnAngle);
+            currentHeading += turnAngle;
+            
+        }
+        
+        return headingsList;
+    }
+    
+    public static double dist(double x1, double y1, double x2, double y2) {
+        double xDiffSquared = (x1 - x2) * (x1 - x2);
+        double yDiffSquared = (y1 - y2) * (y1 - y2);
+        return Math.sqrt(xDiffSquared + yDiffSquared);
     }
 
     /**
@@ -123,7 +155,96 @@ public class TurtleSoup {
      * @param turtle the turtle context
      */
     public static void drawPersonalArt(Turtle turtle) {
-        throw new RuntimeException("implement me!");
+        double fullCircle = 360.0;
+        double intervalDegrees = fullCircle / 15;
+        double degreesTurned = 0;
+        
+        for (; degreesTurned < fullCircle; degreesTurned += intervalDegrees) {
+            drawRegularPolygon(turtle, 6, 25);
+            turtle.turn(intervalDegrees);
+        }
+        
+        for (int i = 0; i < 4; i++) {
+            drawRegularPolygon(turtle, 4, 80);
+            turtle.turn(90);
+        }
+        
+        turtle.draw();
+    }
+    
+    public static void drawPersonalArt2(Turtle turtle) {
+        List<Integer> xCoords = Arrays.asList(0, 0, 0, 0);
+        List<Integer> yCoords = Arrays.asList(0, 160, -160, 0);
+        List<Integer> forwardAmounts = Arrays.asList(160, 320);
+        
+        List<Double> headings = calculateHeadings(xCoords, yCoords);
+        
+        /* Draw main art piece first at origin, then above and below the origin */
+        drawPersonalArt(turtle);
+        for (int i = 0; i < headings.size() - 1; i++) {
+            turtle.turn(headings.get(i));
+            turtle.forward(forwardAmounts.get(i));
+            drawPersonalArt(turtle);
+        }
+        
+        /* Go back to the origin */
+        turtle.turn(headings.get(headings.size() - 1));
+        turtle.forward(160);
+        
+        
+        /* Draw main art piece to the sides of the origin */
+        xCoords = Arrays.asList(0, 160, -160);
+        yCoords = Arrays.asList(0, 0, 0);
+        headings = calculateHeadings(xCoords, yCoords);
+        
+        for (int i = 0; i < headings.size(); i++) {
+            turtle.turn(headings.get(i));
+            turtle.forward(forwardAmounts.get(i));
+            drawPersonalArt(turtle);
+        }
+        
+    }
+    
+    public static void drawPersonalArt3(Turtle turtle) {
+        List<Integer> xCoords = Arrays.asList(0, 0, 0, 0);
+        List<Integer> yCoords = Arrays.asList(0, 1, -1, 0);
+        List<Integer> forwardAmounts = Arrays.asList(160, 320);
+        
+        List<Double> headings = calculateHeadings(xCoords, yCoords);
+        
+        /* Draw main art piece first at origin, then above and below the origin */
+        drawPersonalArt(turtle);
+        for (int j = 0; j < 2; j++) {
+            turtle.turn(j == 0 ? 90 : 180);
+            turtle.forward(forwardAmounts.get(j));
+            drawPersonalArt(turtle);
+        }
+        
+        turtle.turn(180);
+        turtle.forward(160);
+        turtle.turn(270);
+        
+        
+        for (int i = 0; i < 2; i++) {
+            turtle.turn(headings.get(i));
+            turtle.forward(forwardAmounts.get(i));
+            drawPersonalArt(turtle);
+            
+            /* Draw main art piece to the sides of the origin */
+            List<Integer> xCoordsNested = Arrays.asList(0, 1, -1, 0);
+            List<Integer> yCoordsNested = Arrays.asList(0, 0, 0, 0);
+            List<Double> headingsNested = calculateHeadings(xCoordsNested, yCoordsNested);
+            
+            for (int j = 0; j < 2; j++) {
+                turtle.turn(headingsNested.get(j));
+                turtle.forward(forwardAmounts.get(j));
+                drawPersonalArt(turtle);
+            }
+            
+            turtle.turn(headingsNested.get(headingsNested.size() - 1));
+            turtle.forward(160);
+            turtle.turn(270.0);
+        }
     }
 
     /**
@@ -135,12 +256,6 @@ public class TurtleSoup {
      */
     public static void main(String args[]) {
         DrawableTurtle turtle = new DrawableTurtle();
-
-        //drawSquare(turtle, 40);
-        drawRegularPolygon(turtle, 8, 40);
-
-        // draw the window
-        turtle.draw();
+        drawPersonalArt3(turtle);
     }
-
 }
