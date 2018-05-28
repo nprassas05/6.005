@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="ps0/src"/>
+	<classpathentry kind="src" path="ps1/src"/>
+	<classpathentry kind="src" path="ps1/test"/>
+	<classpathentry kind="lib" path="ps1/lib/javax.json-1.0.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="output" path="ps0/bin"/>
+</classpath>
