@@ -3,6 +3,8 @@
  */
 package twitter;
 
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,7 +29,14 @@ public class Filter {
      *         in the same order as in the input list.
      */
     public static List<Tweet> writtenBy(List<Tweet> tweets, String username) {
-        throw new RuntimeException("not implemented");
+        List<Tweet> tweetList = new ArrayList<>();
+        for (Tweet t: tweets) {
+            String author = t.getAuthor();
+            if (author.equalsIgnoreCase(username)) {
+                tweetList.add(t);
+            }
+        }
+        return tweetList;
     }
 
     /**
@@ -41,7 +50,19 @@ public class Filter {
      *         in the same order as in the input list.
      */
     public static List<Tweet> inTimespan(List<Tweet> tweets, Timespan timespan) {
-        throw new RuntimeException("not implemented");
+        List<Tweet> tweetList = new ArrayList<>();
+        Instant start = timespan.getStart();
+        Instant end = timespan.getEnd();
+        
+        for (Tweet t: tweets) {
+            Instant timeStamp = t.getTimestamp();
+            if (timeStamp.compareTo(start) == 0 
+                   || timeStamp.compareTo(end) == 0 
+                   || (timeStamp.isAfter(start) && timeStamp.isBefore(end))) {
+                tweetList.add(t);
+            }
+        }
+        return tweetList;
     }
 
     /**
@@ -60,7 +81,31 @@ public class Filter {
      *         same order as in the input list.
      */
     public static List<Tweet> containing(List<Tweet> tweets, List<String> words) {
-        throw new RuntimeException("not implemented");
+        List<Tweet> tweetList = new ArrayList<>();
+        for (Tweet t: tweets) {
+            String tweetText = t.getText();
+            if (textContainsOneOrMoreWords(tweetText, words)) {
+                tweetList.add(t);
+            }
+        }
+        return tweetList;
+    }
+    
+    /**
+     * Check if a string of text contains any words in the given list, using
+     * case insensitive comparison.
+     * @param text a string of text
+     * @param words a list of words
+     * @return true if the text contains any of the words in the words param, false otherwise.
+     */
+    private static boolean textContainsOneOrMoreWords(String text, List<String> words) {
+        text = text.toLowerCase();
+        for (String w: words) {
+            if (text.contains(w.toLowerCase())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

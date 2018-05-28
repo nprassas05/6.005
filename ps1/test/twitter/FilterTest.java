@@ -14,6 +14,24 @@ import org.junit.Test;
 public class FilterTest {
 
     /*
+     * Testing strategy:
+     * partition inputs for writtenBy:
+     * - authors with name same as parameter author name including case
+     * - authors with name same as paramter author name but differing character cases.
+     * - authors with name different than parameter author name that should not be
+     *   included in result set.
+     *   
+     * partitioning inputs for inTimeSpan:
+     * - tweets sent in the given timespan
+     * - tweets sent before the given timespan
+     * - tweets sent after the given timespan
+     * 
+     * partitioning inputs for containing:
+     * - tweets that do not contain any words in given list
+     * - tweets that contain on word in given list
+     * - tweets that contain multiple words in given list
+     * - tweets that contain words in given list but not with identical character cases
+     * 
      * TODO: your testing strategies for these methods should go here.
      * See the ic03-testing exercise for examples of what a testing strategy comment looks like.
      * Make sure you have partitions.
@@ -39,6 +57,21 @@ public class FilterTest {
     }
     
     @Test
+    public void testWrittenBySameAuthorDifferentCase() {
+        List<Tweet> writtenBy = Filter.writtenBy(Arrays.asList(tweet1, tweet2), "alYsSA");
+        
+        assertEquals("expected singleton list", 1, writtenBy.size());
+        assertTrue("expected list to contain tweet", writtenBy.contains(tweet1));
+    }
+    
+    @Test
+    public void testWrittenByDifferentAuthor() {
+        List<Tweet> writtenBy = Filter.writtenBy(Arrays.asList(tweet1, tweet2), "Michael");
+        
+        assertTrue("expected empty list", writtenBy.isEmpty());
+    }
+    
+    @Test
     public void testInTimespanMultipleTweetsMultipleResults() {
         Instant testStart = Instant.parse("2016-02-17T09:00:00Z");
         Instant testEnd = Instant.parse("2016-02-17T12:00:00Z");
@@ -51,12 +84,50 @@ public class FilterTest {
     }
     
     @Test
+    public void testInTimespanMultipleTweetsZeroResultsBeforeTimeSpan() {
+        // Increase year by 1 so the two tweet's are both before the timespan.
+        Instant testStart = Instant.parse("2017-02-17T09:00:00Z");
+        Instant testEnd = Instant.parse("2017-02-17T12:00:00Z");
+        
+        List<Tweet> inTimespan = Filter.inTimespan(Arrays.asList(tweet1, tweet2), new Timespan(testStart, testEnd));
+        
+        assertTrue("expected empty list", inTimespan.isEmpty());
+    }
+    
+    @Test
+    public void testInTimespanMultipleTweetsZeroResultsAfterTimeSpan() {
+        // Decrease year by 1 so the two tweet's are both after the timespan.
+        Instant testStart = Instant.parse("2015-02-17T09:00:00Z");
+        Instant testEnd = Instant.parse("2015-02-17T12:00:00Z");
+        
+        List<Tweet> inTimespan = Filter.inTimespan(Arrays.asList(tweet1, tweet2), new Timespan(testStart, testEnd));
+        
+        assertTrue("expected empty list", inTimespan.isEmpty());
+    }
+    
+    @Test
     public void testContaining() {
         List<Tweet> containing = Filter.containing(Arrays.asList(tweet1, tweet2), Arrays.asList("talk"));
         
         assertFalse("expected non-empty list", containing.isEmpty());
         assertTrue("expected list to contain tweets", containing.containsAll(Arrays.asList(tweet1, tweet2)));
         assertEquals("expected same order", 0, containing.indexOf(tweet1));
+    }
+    
+    @Test
+    public void testContainingSameWordDifferentCase() {
+        List<Tweet> containing = Filter.containing(Arrays.asList(tweet1, tweet2), Arrays.asList("TalK"));
+        
+        assertFalse("expected non-empty list", containing.isEmpty());
+        assertTrue("expected list to contain tweets", containing.containsAll(Arrays.asList(tweet1, tweet2)));
+        assertEquals("expected same order", 0, containing.indexOf(tweet1));
+    }
+    
+    @Test
+    public void testContainingEmptyResults() {
+        List<Tweet> containing = Filter.containing(Arrays.asList(tweet1, tweet2), Arrays.asList("dragon"));
+        
+        assertTrue("expected empty list", containing.isEmpty());
     }
 
     /*
@@ -72,5 +143,4 @@ public class FilterTest {
      * different class. If you only need them in this test class, then keep them
      * in this test class.
      */
-
 }

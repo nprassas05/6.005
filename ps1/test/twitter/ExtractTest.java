@@ -8,6 +8,7 @@ import static org.junit.Assert.*;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -116,7 +117,7 @@ public class ExtractTest {
         Tweet tweetA = new Tweet(1, "alyssa", "@mikey why did you unfollow me?", d1);
         Set<String> mentionedUsers = Extract.getMentionedUsers(Arrays.asList(tweetA));
         assertEquals("expected size of set", 1, mentionedUsers.size());
-        assertTrue(mentionedUsers.contains("mikey"));
+        assertTrue(containsIgnoreCase(mentionedUsers,"mikey"));
     }
     
     @Test
@@ -124,7 +125,7 @@ public class ExtractTest {
         Tweet tweetA = new Tweet(1, "alyssa", "happy new year bro @mikey", d1);
         Set<String> mentionedUsers = Extract.getMentionedUsers(Arrays.asList(tweetA));
         assertEquals("expected size of set", 1, mentionedUsers.size());
-        assertTrue(mentionedUsers.contains("mikey"));
+        assertTrue(containsIgnoreCase(mentionedUsers,"mikey"));
     }
     
     @Test
@@ -132,7 +133,7 @@ public class ExtractTest {
         Tweet tweetA = new Tweet(1, "alyssa", "happy birthdy to @mikey my good buddy.", d1);
         Set<String> mentionedUsers = Extract.getMentionedUsers(Arrays.asList(tweetA));
         assertEquals("expected size of set", 1, mentionedUsers.size());
-        assertTrue(mentionedUsers.contains("mikey"));
+        assertTrue(containsIgnoreCase(mentionedUsers,"mikey"));
     }
     
     @Test
@@ -150,7 +151,7 @@ public class ExtractTest {
         Tweet tweetB = new Tweet(1, "alyssa", "hey @MikeY-123_8 what is up", d1);
         Set<String> mentionedUsers = Extract.getMentionedUsers(Arrays.asList(tweetA, tweetB));
         assertEquals("expected size of set", 1, mentionedUsers.size());
-        assertTrue(mentionedUsers.contains("mikey-123_8") || mentionedUsers.contains("MikeY-123_8"));
+        assertTrue(containsIgnoreCase(mentionedUsers,"mikey-123_8"));
     }
     
     @Test
@@ -158,7 +159,7 @@ public class ExtractTest {
         Tweet tweetA = new Tweet(1, "alyssa", "waiting for @tim-234()() to arrive", d1);
         Set<String> mentionedUsers = Extract.getMentionedUsers(Arrays.asList(tweetA));
         assertEquals("expected size of set", 1, mentionedUsers.size());
-        assertTrue(mentionedUsers.contains("tim-234"));
+        assertTrue(containsIgnoreCase(mentionedUsers,"tim-234"));
     }
     
     @Test
@@ -167,7 +168,25 @@ public class ExtractTest {
         Tweet tweetA = new Tweet(1, "alyssa", "@tim_34 hey@james-7 @_mulan", d1);
         Set<String> mentionedUsers = Extract.getMentionedUsers(Arrays.asList(tweetA));
         assertEquals("expected size of set", 2, mentionedUsers.size());
-        assertTrue(mentionedUsers.contains("tim_34") && mentionedUsers.contains("_mulan"));
+        assertTrue(containsIgnoreCase(mentionedUsers,"tim_34"));
+        assertTrue(containsIgnoreCase(mentionedUsers,"_mulan"));
+    }
+    
+    /**
+     * Check if a collection of strings contains a given string, ignoring character
+     * case while comparing strings.
+     * @param collection
+     * @param s
+     * @return
+     */
+    private static boolean containsIgnoreCase(Collection<String> collection, String s) {
+        for (String str: collection) {
+            if (str.equalsIgnoreCase(s)) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 
     /*
