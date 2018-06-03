@@ -107,5 +107,4 @@ public class Filter {
         }
         return false;
     }
-
 }

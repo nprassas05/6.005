@@ -16,6 +16,22 @@ import org.junit.Test;
 public class SocialNetworkTest {
 
     /*
+     * -------------------------------------------------------------------------
+     * Testing strategy for guessFollowersGraph:
+     * 
+     * Aside from partitioning, ensure all users in the graph are either
+     * tweet authors or users mentioned in a tweet.
+     * 
+     * Test cases will include some form of the following partitions:
+     * Users who mention no other users in their tweets
+     * Users who mention one or more users in their tweets
+     * Users with multiple tweets with different users mentioned in those tweets
+     * --------------------------------------------------------------------------
+     * 
+     * 
+     * Testing strategy for influencers:
+     * 
+     * 
      * TODO: your testing strategies for these methods should go here.
      * See the ic03-testing exercise for examples of what a testing strategy comment looks like.
      * Make sure you have partitions.

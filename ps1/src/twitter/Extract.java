@@ -112,7 +112,7 @@ public class Extract {
      * @return the set of valid usernames contained within the string of text.
      *         promise: All usernames in the set will have all alphabetic letters in lower-case form.
      */
-    private static Set<String> getMentionedUsersInText(String text) {
+    protected static Set<String> getMentionedUsersInText(String text) {
         Set<String> mentionedUsers = new HashSet<>();
         
         int i = 0;
@@ -159,5 +159,4 @@ public class Extract {
         
         return false;
     }
-
 }

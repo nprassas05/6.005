@@ -3,6 +3,11 @@
  */
 package twitter;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,7 +46,23 @@ public class SocialNetwork {
      *         either authors or @-mentions in the list of tweets.
      */
     public static Map<String, Set<String>> guessFollowsGraph(List<Tweet> tweets) {
-        throw new RuntimeException("not implemented");
+        Map<String, Set<String>> followersGraph = new HashMap<>();
+        
+        for (Tweet t: tweets) {
+            String user = t.getAuthor();
+            String text = t.getText();
+            
+            if (!followersGraph.containsKey(user)) {
+                followersGraph.put(user, new HashSet<>());
+            }
+            Set<String> allUsersMentioned = followersGraph.get(user);
+            /* get all mentioned users from the tweet text, and add these users
+             * to set of a people who the author of the current tweet probably follows.
+             */
+            allUsersMentioned.addAll(Extract.getMentionedUsersInText(text));
+        }
+        
+        return followersGraph;
     }
 
     /**
@@ -54,7 +75,28 @@ public class SocialNetwork {
      *         descending order of follower count.
      */
     public static List<String> influencers(Map<String, Set<String>> followsGraph) {
-        throw new RuntimeException("not implemented");
+        /* map[a] = number of people following A */
+        Map<String, Integer> followerCountMap = new HashMap<>();
+        Set<String> usersFollowed = new HashSet<>();
+        
+        for (Set<String> usersMentioned: followsGraph.values()) {
+            for (String user: usersMentioned) {
+                usersFollowed.add(user);
+                int count = followerCountMap.getOrDefault(user, 0);
+                followerCountMap.put(user, count + 1);
+            }
+        }
+        
+        List<String> influencers = new ArrayList<String>(usersFollowed);
+        Collections.sort(influencers, new Comparator<String>() {
+            @Override
+            public int compare(String s, String t) {
+                return followerCountMap.get(t) 
+                       - followerCountMap.get(s);
+            }
+        });
+        
+        return influencers;
     }
 
 }
