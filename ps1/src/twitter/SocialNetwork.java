@@ -91,8 +91,10 @@ public class SocialNetwork {
         Collections.sort(influencers, new Comparator<String>() {
             @Override
             public int compare(String s, String t) {
-                return followerCountMap.get(t) 
-                       - followerCountMap.get(s);
+                return -(
+                    followerCountMap.getOrDefault(s, 0) 
+                    - followerCountMap.getOrDefault(t, 0)
+                );
             }
         });
         
