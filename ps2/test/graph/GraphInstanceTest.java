@@ -139,8 +139,8 @@ public abstract class GraphInstanceTest {
     public void testSetDeleteEdge() {
         Graph<String> g = emptyInstance();
         g.set("roger", "sam", 40);
-        assertEquals(40, g.set("sam", "roger", 0));
-        assertEquals(0, g.set("sam", "roger", 3));
+        assertEquals(40, g.set("roger", "sam", 0));
+        assertEquals(0, g.set("roger", "sam", 3));
     }
     
     @Test
@@ -162,9 +162,10 @@ public abstract class GraphInstanceTest {
         g.set("roger", "sam", 40);
         g.set("jim", "sam", 90);
         Map<String, Integer> sourcesMap = g.sources("sam");
+        
         assertEquals(2, sourcesMap.size());
         assertEquals(40, (int) sourcesMap.get("roger"));
-        assertEquals(40, (int) sourcesMap.get("jim"));
+        assertEquals(90, (int) sourcesMap.get("jim"));
     }
     
     @Test
