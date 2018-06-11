@@ -21,7 +21,7 @@ public class ConcreteVerticesGraphTest extends GraphInstanceTest {
      * Provide a ConcreteVerticesGraph for tests in GraphInstanceTest.
      */
     @Override public Graph<String> emptyInstance() {
-        return new ConcreteVerticesGraph();
+        return new ConcreteVerticesGraph<String>();
     }
     
     /*
@@ -34,7 +34,7 @@ public class ConcreteVerticesGraphTest extends GraphInstanceTest {
     // TODO tests for ConcreteVerticesGraph.toString()
     @Test
     public void testToString() {
-        Graph<String> g = new ConcreteVerticesGraph();
+        Graph<String> g = new ConcreteVerticesGraph<String>();
         g.set("jim", "henry", 45);
         g.set("jim", "abe", 2);
         g.set("yen", "jen", 3);
@@ -59,24 +59,23 @@ public class ConcreteVerticesGraphTest extends GraphInstanceTest {
     //   constructor:
     //     just one test with initial label.
     
-    // TODO tests for operations of Vertex
     @Test
     public void testVertexConstructor() {
-        Vertex v = new Vertex("abe");
+        Vertex<String> v = new Vertex<String>("abe");
         assertEquals("abe", v.getLabel());
         assertEquals(0, v.targets().size());
     }
     
     @Test
     public void testAddEdge() {
-        Vertex v = new Vertex("abe");
+        Vertex<String> v = new Vertex<String>("abe");
         v.addEdge("tom", 5);
         assertEquals(5, v.edgeWeight("tom"));
     }
     
     @Test
     public void testRemoveEdge() {
-        Vertex v = new Vertex("abe");
+        Vertex<String> v = new Vertex<String>("abe");
         v.addEdge("tom", 5);
         v.removeEdge("tom");
         assertFalse(v.containsEdgeTo("tom"));

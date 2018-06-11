@@ -16,9 +16,9 @@ import java.util.Set;
  * 
  * <p>PS2 instructions: you MUST use the provided rep.
  */
-public class ConcreteVerticesGraph implements Graph<String> {
+public class ConcreteVerticesGraph<L> implements Graph<L> {
     
-    private final List<Vertex> vertices = new ArrayList<>();
+    private final List<Vertex<L>> vertices = new ArrayList<>();
     
     // Abstraction function:
     //   AF(vertices) = directed weighted graph containing every vertex
@@ -37,39 +37,39 @@ public class ConcreteVerticesGraph implements Graph<String> {
     // TODO checkRep
     public void checkRep() {
         assert vertices != null;
-        Set<String> vertexLabelSet = new HashSet<>();
+        Set<L> vertexLabelSet = new HashSet<>();
         
-        for (Vertex v: vertices) {
+        for (Vertex<L> v: vertices) {
             vertexLabelSet.add(v.getLabel());
         }
         
-        for (Vertex v: vertices) {
-            Map<String, Integer> targetsFromV = v.targets();
-            for (String label: targetsFromV.keySet()) {
+        for (Vertex<L> v: vertices) {
+            Map<L, Integer> targetsFromV = v.targets();
+            for (L label: targetsFromV.keySet()) {
                 assert(vertexLabelSet.contains(label));
             }
         }
     }
     
-    @Override public boolean add(String vertex) {
-        for (Vertex v: vertices) {
-            String label = v.getLabel();
+    @Override public boolean add(L vertex) {
+        for (Vertex<L> v: vertices) {
+            L label = v.getLabel();
             if (label.equals(vertex)) {
                 return false;
             }
         }
         
-        vertices.add(new Vertex(vertex));
+        vertices.add(new Vertex<L>(vertex));
         checkRep();
         return true;
     }
     
-    @Override public int set(String source, String target, int weight) {
+    @Override public int set(L source, L target, int weight) {
         int prevWeight = 0;
         add(source);
         add(target);
         
-        Vertex sourceVertex = getVertex(source);
+        Vertex<L> sourceVertex = getVertex(source);
         if (sourceVertex.containsEdgeTo(target)) {
             prevWeight = sourceVertex.edgeWeight(target);
         }
@@ -78,12 +78,12 @@ public class ConcreteVerticesGraph implements Graph<String> {
         return prevWeight;
     }
     
-    @Override public boolean remove(String vertex) {
+    @Override public boolean remove(L vertex) {
         boolean existed = false;
         
-        for (Iterator<Vertex> iter = vertices.iterator(); iter.hasNext(); ) {
-            Vertex v = iter.next();
-            String label = v.getLabel();
+        for (Iterator<Vertex<L>> iter = vertices.iterator(); iter.hasNext(); ) {
+            Vertex<L> v = iter.next();
+            L label = v.getLabel();
             if (label.equals(vertex)) {
                 iter.remove();
                 existed = true;
@@ -95,19 +95,19 @@ public class ConcreteVerticesGraph implements Graph<String> {
         return existed;
     }
     
-    @Override public Set<String> vertices() {
-        Set<String> verticesSet = new HashSet<>();
-        for (Vertex v: this.vertices) {
+    @Override public Set<L> vertices() {
+        Set<L> verticesSet = new HashSet<>();
+        for (Vertex<L> v: this.vertices) {
             verticesSet.add(v.getLabel());
         }
         
         return verticesSet;
     }
     
-    @Override public Map<String, Integer> sources(String target) {
-        Map<String, Integer> sources = new HashMap<>();
-        for (Vertex v: vertices) {
-            Map<String, Integer> targets = v.targets();
+    @Override public Map<L, Integer> sources(L target) {
+        Map<L, Integer> sources = new HashMap<>();
+        for (Vertex<L> v: vertices) {
+            Map<L, Integer> targets = v.targets();
             if (targets.containsKey(target)) {
                 sources.put(v.getLabel(), targets.get(target));
             }
@@ -115,9 +115,9 @@ public class ConcreteVerticesGraph implements Graph<String> {
         return sources;
     }
     
-    @Override public Map<String, Integer> targets(String source) {
-        for (Vertex v: vertices) {
-            String label = v.getLabel();
+    @Override public Map<L, Integer> targets(L source) {
+        for (Vertex<L> v: vertices) {
+            L label = v.getLabel();
             if (label.equals(source)) {
                 return v.targets();
             }
@@ -134,8 +134,8 @@ public class ConcreteVerticesGraph implements Graph<String> {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        for (Iterator<Vertex> iter = vertices.iterator(); iter.hasNext(); ) {
-            Vertex v = iter.next();
+        for (Iterator<Vertex<L>> iter = vertices.iterator(); iter.hasNext(); ) {
+            Vertex<L> v = iter.next();
             sb.append(v.toString());
             if (iter.hasNext()) {
                 sb.append('\n');
@@ -148,14 +148,14 @@ public class ConcreteVerticesGraph implements Graph<String> {
     /**
      * Find and return the vertex with the given string label.
      * 
-     * @param vString the label to compare against, requires that exactly one
+     * @param source the label to compare against, requires that exactly one
      *        vertex in the graph has vString as its label.
      * @return the vertex whose label is vString.
      * @throws RuntimeException if no vertex in vertices has vString as its label.
      */
-    private Vertex getVertex(String vString) {
-        for (Vertex v: vertices) {
-            if (v.getLabel().equals(vString)) {
+    private Vertex<L> getVertex(L source) {
+        for (Vertex<L> v: vertices) {
+            if (v.getLabel().equals(source)) {
                 return v;
             }
         }
@@ -172,11 +172,11 @@ public class ConcreteVerticesGraph implements Graph<String> {
  * <p>PS2 instructions: the specification and implementation of this class is
  * up to you.
  */
-class Vertex {
+class Vertex<L> {
     
     // fields
-    private String label;
-    private Map<String, Integer> targets = new HashMap<>();
+    private L label;
+    private Map<L, Integer> targets = new HashMap<>();
     
     // Abstraction function:
     //   AF(label, targets) = vertex with given label containing edges
@@ -193,7 +193,7 @@ class Vertex {
      * construct a new vertex instance with the given
      * @param label the label of the vertex instance upon initialization.
      */
-    public Vertex(String label) {
+    public Vertex(L label) {
         this.label = label;
     }
     
@@ -210,7 +210,7 @@ class Vertex {
      * @param target
      * @param weight
      */
-    public void addEdge(String target, int weight) {
+    public void addEdge(L target, int weight) {
         targets.put(target, weight);
     }
     
@@ -218,7 +218,7 @@ class Vertex {
      * 
      * @param target
      */
-    public void removeEdge(String target) {
+    public void removeEdge(L target) {
         targets.remove(target);
     }
     
@@ -227,7 +227,7 @@ class Vertex {
      * @param t
      * @return
      */
-    public int edgeWeight(String t) {
+    public int edgeWeight(L t) {
         return targets.get(t);
     }
     
@@ -235,7 +235,7 @@ class Vertex {
      * 
      * @return
      */
-    public String getLabel() {
+    public L getLabel() {
         return label;
     }
     
@@ -245,7 +245,7 @@ class Vertex {
      * @return true if this vertex has an edge marked to the given label,
      *         false otherwise.
      */
-    public boolean containsEdgeTo(String s) {
+    public boolean containsEdgeTo(L s) {
         return targets.containsKey(s);
     }
     
@@ -260,7 +260,7 @@ class Vertex {
         return label + ": " + targets.toString();
     }
     
-    public Map<String, Integer> targets() {
+    public Map<L, Integer> targets() {
         return new HashMap<>(this.targets);
     }
 }
