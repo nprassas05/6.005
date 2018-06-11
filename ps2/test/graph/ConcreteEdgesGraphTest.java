@@ -32,14 +32,35 @@ public class ConcreteEdgesGraphTest extends GraphInstanceTest {
     //   TODO
     
     // TODO tests for ConcreteEdgesGraph.toString()
-    
+    @Test
+    public void testToString() {
+        Graph<String> g = new ConcreteEdgesGraph();
+        g.set("jim", "henry", 45);
+        g.set("jim", "abe", 2);
+        g.set("yen", "jen", 3);
+        
+        System.out.println(g);
+    }
     /*
      * Testing Edge...
      */
     
     // Testing strategy for Edge
-    //   
+    // newly constructed edges, edges that change their edge weight
+    @Test
+    public void testEdge() {
+        Edge e = new Edge("here", "there", 4);
+        System.out.println(e.toString());
+        System.out.println("hey");
+    }
     
     // TODO tests for operations of Edge
-    
+    @Test
+    public void testEdgeGetWeightSetWeight() {
+        Edge e = new Edge("here", "there", 4);
+        assertEquals(4, e.getWeight());
+        Edge r = e.setWeight(34);
+        assertEquals(34, r.getWeight());
+        assertTrue(r != e);
+    }
 }

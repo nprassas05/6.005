@@ -4,6 +4,7 @@
 package graph;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -79,10 +80,10 @@ public class ConcreteEdgesGraph implements Graph<String> {
         
         if (existingEdge != null) {
             int prevWeight = existingEdge.getWeight();
+            edges.remove(existingEdge);
+            
             if (weight > 0) {
-                existingEdge.setWeight(prevWeight);
-            } else {
-                edges.remove(existingEdge);
+                edges.add(existingEdge.setWeight(weight));
             }
             
             return prevWeight;
@@ -160,7 +161,23 @@ public class ConcreteEdgesGraph implements Graph<String> {
     // TODO toString()
     @Override
     public String toString() {
-        throw new RuntimeException("not implemented");
+        StringBuilder sb = new StringBuilder();
+        List<Edge> sortedEdges = new ArrayList<>(edges);
+        Collections.sort(sortedEdges, 
+                        (a, b) -> a.getFrom().compareTo(b.getFrom())
+        );
+        
+        int size = sortedEdges.size();
+        for (int i = 0; i < size; i++) {
+            String from = edges.get(i).toString().split("->")[0];
+            String fromNext = i >= size - 1 ? from : edges.get(i + 1).toString().split("->")[0];
+            sb.append(edges.get(i).toString());
+            if (i < size - 1 && !from.equals(fromNext)) {
+                sb.append('\n');
+            }
+        }
+        
+        return sb.toString();
     }
 }
 
@@ -176,10 +193,11 @@ class Edge {
     // TODO fields
     final private String from;
     final private String to;
-    private int weight;
+    final private int weight;
     
     // Abstraction function:
-    //   Represents a weighted directed edge from one vertex to another
+    //   AF(from, to, weight) = directed weighted edge with its source vertex,
+    //   target vertex, and weight being equal to those in the rep.
     // Representation invariant:
     //   weight > 0
     //   
@@ -191,6 +209,7 @@ class Edge {
         this.from = from;
         this.to = to;
         this.weight = weight;
+        checkRep();
     }
     
     /*
@@ -201,11 +220,11 @@ class Edge {
     }
     
     /* change the weight of the edge
-     * @param weight new weight to set the edge weight, must be > 0
+     * @param weight new weight to set the edge weight to, must be > 0
      */
-    public void setWeight(int weight) {
-        this.weight = weight;
-        checkRep();
+    public Edge setWeight(int weight) {
+        // return new Edge object to satisfy immutability constraint
+        return new Edge(this.from, this.to, weight);
     }
     
     /*
