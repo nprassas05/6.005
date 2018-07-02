@@ -3,8 +3,15 @@
  */
 package poet;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
 
 import graph.Graph;
 
@@ -55,11 +62,14 @@ public class GraphPoet {
     private final Graph<String> graph = Graph.empty();
     
     // Abstraction function:
-    //   TODO
+    //   AF(graph) = affinity graph with edge weights for any edge s -> t
+    //   being the number of times t follows s in a sentence based on a given
+    //   corpus.
     // Representation invariant:
-    //   TODO
+    //   All words in affinity graph are lower case.
     // Safety from rep exposure:
-    //   TODO
+    //   Constructor only takes a file argument, so rep is not exposed.
+    //   All public methods return immutable strings.
     
     /**
      * Create a new poet with the graph from corpus (as described above).
@@ -68,21 +78,120 @@ public class GraphPoet {
      * @throws IOException if the corpus file cannot be found or read
      */
     public GraphPoet(File corpus) throws IOException {
-        throw new RuntimeException("not implemented");
+        BufferedReader reader = new BufferedReader(new FileReader(corpus));
+        String line;
+        String prevWord = "";
+        Map<String, Integer> targetsFromPrevWord;
+        
+        while ((line = reader.readLine()) != null) {
+            Scanner scanner = new Scanner(line);
+            while (scanner.hasNext()) {
+                String word = scanner.next().toLowerCase();
+                
+                if (!prevWord.isEmpty()) {
+                    targetsFromPrevWord = graph.targets(prevWord);
+                    int weight = targetsFromPrevWord.getOrDefault(word, 0);
+                    graph.set(prevWord, word, weight + 1);
+                }
+                
+                prevWord = word;
+            }
+            
+            scanner.close();
+        }
+        
+        reader.close();
+        checkRep();
     }
     
-    // TODO checkRep
+    // checkRep
+    public void checkRep() {
+        for (String s: graph.vertices()) {
+            assert s.equals(s.toLowerCase());
+        }
+    }
     
     /**
      * Generate a poem.
      * 
      * @param input string from which to create the poem
+     *        requires string is non-empty
      * @return poem (as described above)
      */
     public String poem(String input) {
-        throw new RuntimeException("not implemented");
+        checkRep();
+        
+        if (input.isEmpty()) {
+            throw new IllegalArgumentException("empty string "
+                    + "cannot be used to generate a poem");
+        }
+        
+        String[] words = input.split("\\s+");
+        List<String> poemWords = new ArrayList<>();
+        poemWords.add(words[0]);
+        
+        for (int i = 1; i < words.length; i++) {
+            String prevWord = words[i - 1];
+            String word = words[i];
+            String bridgeWord = maxBridgeWord(prevWord, word);
+            
+            if (!bridgeWord.isEmpty()) {
+                poemWords.add(bridgeWord);
+            }
+            
+            poemWords.add(word);
+        }
+        
+        StringBuilder poemSB = new StringBuilder();
+        for (Iterator<String> iter = poemWords.iterator(); iter.hasNext(); ) {
+            poemSB.append(iter.next());
+            if (iter.hasNext()) poemSB.append(" ");
+        }
+        
+        return poemSB.toString();
     }
     
-    // TODO toString()
+    /**
+     * Find the bridge word such that the two edge path
+     * from the sourceWord to the bridge word to the target
+     * word has the largest weight among all two edge paths
+     * from the source to target word.
+     * 
+     * @param sourceWord
+     * @param targetWord
+     * @return the bridge word that is part of the largest weighted path
+     *         sourceWord -> bridgeWord -> targetWord among all possibilities
+     *         according to our affinity graph.
+     *         Return an empty string if no such bridge word exists.
+     */
+    private String maxBridgeWord(String sourceWord, String targetWord) {
+        String maxBridgeWord = "";
+        int maxPathWeight = 0;
+        
+        
+        /*
+         *  convert source and target words to lower case before getting edge weight maps
+         *  since all our rep requires are vertex string labels to be lower case.
+         */
+        Map<String, Integer> targetsFromSource = graph.targets(sourceWord.toLowerCase());
+        Map<String, Integer> sourcesFromTarget = graph.sources(targetWord.toLowerCase());
+        
+        for (String t: targetsFromSource.keySet()) {
+            // check if t is a bridge word.
+            if (sourcesFromTarget.containsKey(t)) {
+                int pathWeight = targetsFromSource.get(t) + sourcesFromTarget.get(t);
+                if (maxPathWeight < pathWeight) {
+                    maxPathWeight = pathWeight;
+                    maxBridgeWord = t;
+                }
+            }
+        }
+        
+        return maxBridgeWord;
+    }
     
+    @Override
+    public String toString() {
+        return graph.toString();
+    }
 }

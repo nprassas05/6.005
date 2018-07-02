@@ -225,7 +225,7 @@ class Vertex<L> {
     /**
      * 
      * @param t
-     * @return
+     * @return the weight of directing edge pointing to vertex t
      */
     public int edgeWeight(L t) {
         return targets.get(t);

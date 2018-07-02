@@ -6,6 +6,7 @@ package graph;
 import static org.junit.Assert.*;
 
 import java.util.Collections;
+import java.util.Set;
 
 import org.junit.Test;
 
@@ -34,5 +35,14 @@ public class GraphStaticTest {
     }
     
     // TODO test other vertex label types in Problem 3.2
-    
+    @Test
+    public void testOtherLabesl() {
+        Graph<Integer> g = Graph.empty();
+        g.add(34);
+        g.set(34, 45, 100);
+        Set<Integer> verticesSet = g.vertices();
+        assertEquals("expected size", 2, verticesSet.size());
+        assertTrue(verticesSet.contains(34));
+        assertTrue(verticesSet.contains(45));
+    }
 }
